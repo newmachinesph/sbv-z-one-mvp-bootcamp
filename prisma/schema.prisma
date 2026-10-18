@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TeamStatus {
+  ACTIVE
+  GRADUATED
+  PENDING
+}
+
+enum MemberRole {
+  HACKER
+  HUSTLER
+  HIPSTER
+  HOUND
+}
+
+enum ApplicantStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WAITLISTED
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Team {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  name        String
+  productName String
+  description String
+  niche       String
+  currentWeek Int            @default(1)
+  totalPoints Int            @default(0)
+  status      TeamStatus     @default(ACTIVE)
+  avatarUrl   String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  members     TeamMember[]
+  progress    WeekProgress[]
+}
+
+model TeamMember {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  role      MemberRole
+  avatar    String?
+  skills    String[]
+  bio       String
+  password  String?
+  teamId    String
+  team      Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([teamId])
+}
+
+model WeekProgress {
+  id        String   @id @default(cuid())
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  week      Int
+  shipTarget String
+  completed Boolean  @default(false)
+  score     Int      @default(0)
+  feedback  String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([teamId, week])
+}
+
+model Applicant {
+  id            String          @id @default(cuid())
+  name          String
+  email         String          @unique
+  preferredRole MemberRole
+  skills        String[]
+  experience    String
+  motivation    String
+  linkedinUrl   String          @default("")
+  resumeUrl     String?
+  portfolioUrl  String?
+  location      String          @default("")
+  status        ApplicantStatus @default(PENDING)
+  appliedAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model TeamApplication {
+  id        String                   @id @default(cuid())
+  teamName  String
+  status    ApplicantStatus          @default(PENDING)
+  appliedAt DateTime                 @default(now())
+  updatedAt DateTime                 @updatedAt
+  members   TeamApplicationMember[]
+}
+
+model TeamApplicationMember {
+  id                String          @id @default(cuid())
+  teamApplicationId String
+  teamApplication   TeamApplication @relation(fields: [teamApplicationId], references: [id], onDelete: Cascade)
+  name              String
+  email             String
+  preferredRole     MemberRole
+  skills            String[]
+  experience        String
+  motivation        String
+  linkedinUrl       String          @default("")
+  resumeUrl         String?
+  portfolioUrl      String?
+  location          String          @default("")
+
+  @@index([teamApplicationId])
+}
+
+model Challenge {
+  id          String   @id @default(cuid())
+  week        Int      @unique
+  name        String
+  description String
+  tests       String
+  winner      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+enum MentorStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model MentorApplication {
+  id                 String       @id @default(cuid())
+  name               String
+  email              String       @unique
+  phone              String
+  linkedinUrl        String
+  resumeUrl          String
+  portfolioUrl       String?
+  whatBuilt          String
+  whatFailed         String
+  whatShipped        String
+  whyMentor          String
+  weeklyAvailability String
+  contactSlot1       String
+  contactSlot2       String
+  contactSlot3       String
+  status             MentorStatus @default(PENDING)
+  appliedAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model UploadedFile {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  name      String
+  url       String
+  size      Int
+  type      String
+  entityId  String?
+  createdAt DateTime @default(now())
+}

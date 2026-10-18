@@ -1,0 +1,89 @@
+import { PageWrapper } from "../page-wrapper";
+
+export function CoverPage() {
+  return (
+    <PageWrapper pageNumber={1} bg="black" noPadding backgroundImage="/blueprint/1.jpg">
+      <div className="relative flex h-full flex-col items-center justify-center px-16 py-20">
+        {/* Dot grid pattern */}
+        <div className="absolute inset-0 opacity-[0.06]">
+          <svg width="100%" height="100%">
+            <pattern
+              id="dot-grid"
+              x="0"
+              y="0"
+              width="24"
+              height="24"
+              patternUnits="userSpaceOnUse"
+            >
+              <circle cx="1.5" cy="1.5" r="1" fill="#F59E0B" />
+            </pattern>
+            <rect width="100%" height="100%" fill="url(#dot-grid)" />
+          </svg>
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center text-center">
+          {/* Z1 Logo */}
+          <svg
+            width="140"
+            height="140"
+            viewBox="0 0 874 1021"
+            fill="none"
+            className="mb-12"
+          >
+            <path
+              d="M54.3067 0.42528C69.8 -0.441387 85.4267 0.318619 100.973 0.118619C295.173 0.345285 489.413 0.451959 683.64 0.625292C686.693 0.518625 689.76 0.891954 692.813 0.411954C685.88 9.85195 680.253 20.3986 673.84 30.2786C552.347 226.665 430.48 423.372 308.813 619.905L309.253 620.719C428.52 620.532 547.827 621.052 667.08 620.692C667.107 672.332 666.907 723.985 667.173 775.625C444.787 775.519 222.4 776.025 0 776.039C11.68 755.745 24.5867 736.079 36.7467 716.012C152.28 529.172 267.92 342.332 383.44 155.439C274.587 155.505 165.747 155.559 56.8933 155.639C56.24 155.585 54.9467 155.465 54.2933 155.399C54.28 103.745 54.24 52.0919 54.3067 0.42528Z"
+              fill="#F59E0B"
+            />
+            <path
+              d="M638.76 342.999C689.307 310.359 739.867 277.719 790.413 245.079C818.253 244.759 846.12 245.239 873.973 244.905C873.96 503.399 873.987 761.879 873.96 1020.37C815.267 1020.24 756.573 1020.33 697.893 1020.43L697.453 1019.81C697.467 839.879 697.4 659.945 697.48 480.012C654.787 507.479 612.4 535.465 569.547 562.652C569.52 504.412 569.453 446.159 569.587 387.919C592.36 372.665 615.747 358.025 638.76 342.999Z"
+              fill="#F59E0B"
+            />
+          </svg>
+
+          {/* Title */}
+          <h1
+            className="mb-4 text-[56px] font-extrabold tracking-[-0.03em] leading-none"
+            style={{ fontFamily: "var(--font-heading)" }}
+          >
+            <span className="gradient-text-orange">Z1 Forge</span>
+          </h1>
+
+          {/* Subtitle */}
+          <p
+            className="mb-2 text-[20px] font-medium text-white/80 leading-relaxed max-w-md"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            A 12-Week Startup Collaborative Forge
+          </p>
+          <p
+            className="text-[16px] font-medium text-white/50 leading-relaxed"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            For Partners &amp; Mentors
+          </p>
+
+          {/* Divider */}
+          <div className="mt-12 mb-12 h-px w-32 bg-gradient-to-r from-transparent via-[#F59E0B] to-transparent" />
+
+          {/* SBV Logo + Cohort */}
+          <div className="flex flex-col items-center gap-4">
+            <div className="rounded-lg bg-white px-4 py-2.5">
+              <img
+                src="/sbv_logo_dark.svg"
+                alt="Starting Block Ventures"
+                className="h-6 w-auto"
+              />
+            </div>
+            <span
+              className="text-[13px] font-medium tracking-[0.2em] text-[#F59E0B]/60"
+              style={{ fontFamily: "var(--font-sans)" }}
+            >
+              COHORT 1 &middot; 2026
+            </span>
+          </div>
+        </div>
+      </div>
+    </PageWrapper>
+  );
+}

@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Z-One Forge — OG Image Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #0A0A0A;
+      color: #E5E7EB;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 24px 60px;
+      gap: 28px;
+    }
+
+    /* ——— Header ——— */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header svg { height: 28px; width: auto; }
+    .header h1 {
+      font-family: 'Manrope', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .header h1 span { color: #F59E0B; }
+
+    /* ——— Presets ——— */
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-width: 1200px;
+      width: 100%;
+      justify-content: center;
+    }
+    .preset-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 100px;
+      padding: 8px 18px;
+      color: #9CA3AF;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preset-btn:hover { background: rgba(245,158,11,0.08); color: #FBBF24; border-color: rgba(245,158,11,0.2); }
+    .preset-btn.active { background: rgba(245,158,11,0.12); color: #F59E0B; border-color: rgba(245,158,11,0.3); }
+
+    /* ——— Controls ——— */
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 160px;
+      gap: 16px;
+      max-width: 1200px;
+      width: 100%;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6B7280;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    input, select, textarea {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: rgba(245,158,11,0.4); }
+    textarea { resize: vertical; min-height: 38px; }
+
+    /* ——— Canvas ——— */
+    .canvas-wrap {
+      position: relative;
+      max-width: 1200px;
+      width: 100%;
+    }
+    canvas {
+      border-radius: 12px;
+      max-width: 100%;
+      height: auto;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 24px 80px rgba(0,0,0,0.5);
+    }
+    .canvas-size {
+      position: absolute;
+      bottom: -24px;
+      right: 0;
+      font-size: 11px;
+      color: #6B7280;
+      font-family: 'Geist Mono', monospace;
+    }
+
+    /* ——— Actions ——— */
+    .actions { display: flex; gap: 10px; }
+    button.primary {
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 32px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(245,158,11,0.25);
+    }
+    button.primary:hover { box-shadow: 0 4px 30px rgba(245,158,11,0.4); transform: translateY(-1px); }
+    button.secondary {
+      background: rgba(255,255,255,0.04);
+      color: #9CA3AF;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button.secondary:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <svg viewBox="0 0 874 1021" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M54.3067 0.42528C69.8-0.441387 85.4267 0.318619 100.973 0.118619C295.173 0.345285 489.413 0.451959 683.64 0.625292C686.693 0.518625 689.76 0.891954 692.813 0.411954C685.88 9.85195 680.253 20.3986 673.84 30.2786C552.347 226.665 430.48 423.372 308.813 619.905L309.253 620.719C428.52 620.532 547.827 621.052 667.08 620.692C667.107 672.332 666.907 723.985 667.173 775.625C444.787 775.519 222.4 776.025 0 776.039C11.68 755.745 24.5867 736.079 36.7467 716.012C152.28 529.172 267.92 342.332 383.44 155.439C274.587 155.505 165.747 155.559 56.8933 155.639C56.24 155.585 54.9467 155.465 54.2933 155.399C54.28 103.745 54.24 52.0919 54.3067 0.42528Z" fill="#F59E0B"/>
+      <path d="M638.76 342.999C689.307 310.359 739.867 277.719 790.413 245.079C818.253 244.759 846.12 245.239 873.973 244.905C873.96 503.399 873.987 761.879 873.96 1020.37C815.267 1020.24 756.573 1020.33 697.893 1020.43L697.453 1019.81C697.467 839.879 697.4 659.945 697.48 480.012C654.787 507.479 612.4 535.465 569.547 562.652C569.52 504.412 569.453 446.159 569.587 387.919C592.36 372.665 615.747 358.025 638.76 342.999Z" fill="#F59E0B"/>
+    </svg>
+    <h1><span>Forge</span> — OG Generator</h1>
+  </div>
+
+  <!-- Presets -->
+  <div class="presets">
+    <button class="preset-btn active" onclick="applyPreset('home')">Homepage</button>
+    <button class="preset-btn" onclick="applyPreset('apply')">Apply Now</button>
+    <button class="preset-btn" onclick="applyPreset('teams')">Teams</button>
+    <button class="preset-btn" onclick="applyPreset('leaderboard')">Leaderboard</button>
+    <button class="preset-btn" onclick="applyPreset('curriculum')">Curriculum</button>
+    <button class="preset-btn" onclick="applyPreset('4h')">4H Framework</button>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <div class="control-group">
+      <label>Title</label>
+      <input id="title" type="text" value="Zero to One. In 12 Weeks." />
+    </div>
+    <div class="control-group">
+      <label>Subtitle</label>
+      <input id="subtitle" type="text" value="From Idea to Live Product — The collaborative forge where small teams build, ship, and launch." />
+    </div>
+    <div class="control-group">
+      <label>Badge</label>
+      <input id="badge" type="text" value="Cohort 1" />
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-wrap">
+    <canvas id="og" width="1200" height="630"></canvas>
+    <span class="canvas-size">1200 × 630</span>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="primary" onclick="savePNG()">Download PNG</button>
+    <button class="secondary" onclick="draw()">Redraw</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('og');
+    const ctx = canvas.getContext('2d');
+    const W = 1200, H = 630;
+
+    // Z1 logo SVG paths
+    const Z_PATH = "M54.3067 0.42528C69.8-0.441387 85.4267 0.318619 100.973 0.118619C295.173 0.345285 489.413 0.451959 683.64 0.625292C686.693 0.518625 689.76 0.891954 692.813 0.411954C685.88 9.85195 680.253 20.3986 673.84 30.2786C552.347 226.665 430.48 423.372 308.813 619.905L309.253 620.719C428.52 620.532 547.827 621.052 667.08 620.692C667.107 672.332 666.907 723.985 667.173 775.625C444.787 775.519 222.4 776.025 0 776.039C11.68 755.745 24.5867 736.079 36.7467 716.012C152.28 529.172 267.92 342.332 383.44 155.439C274.587 155.505 165.747 155.559 56.8933 155.639C56.24 155.585 54.9467 155.465 54.2933 155.399C54.28 103.745 54.24 52.0919 54.3067 0.42528Z";
+    const ONE_PATH = "M638.76 342.999C689.307 310.359 739.867 277.719 790.413 245.079C818.253 244.759 846.12 245.239 873.973 244.905C873.96 503.399 873.987 761.879 873.96 1020.37C815.267 1020.24 756.573 1020.33 697.893 1020.43L697.453 1019.81C697.467 839.879 697.4 659.945 697.48 480.012C654.787 507.479 612.4 535.465 569.547 562.652C569.52 504.412 569.453 446.159 569.587 387.919C592.36 372.665 615.747 358.025 638.76 342.999Z";
+
+    // Presets
+    const presets = {
+      home: {
+        title: "Zero to One. In 12 Weeks.",
+        subtitle: "From Idea to Live Product — The collaborative forge where small teams build, ship, and launch.",
+        badge: "Cohort 1",
+      },
+      apply: {
+        title: "Apply Now",
+        subtitle: "Join Cohort 1 — Ship a live product in 12 weeks with a team of 4.",
+        badge: "Now Accepting",
+      },
+      teams: {
+        title: "Meet the Teams",
+        subtitle: "Hacker. Hustler. Hipster. Hound. Four roles, one product that ships.",
+        badge: "Teams",
+      },
+      leaderboard: {
+        title: "Leaderboard",
+        subtitle: "Track team progress, weekly challenges, and who's shipping the hardest.",
+        badge: "Live Rankings",
+      },
+      curriculum: {
+        title: "The 12-Week Curriculum",
+        subtitle: "From foundation to Demo Day — a structured path to a live, revenue-ready product.",
+        badge: "Curriculum",
+      },
+      "4h": {
+        title: "The 4H Framework",
+        subtitle: "Hacker builds. Hustler sells. Hipster brands. Hound researches. Together they ship.",
+        badge: "Framework",
+      },
+    };
+
+    function applyPreset(key) {
+      const p = presets[key];
+      document.getElementById('title').value = p.title;
+      document.getElementById('subtitle').value = p.subtitle;
+      document.getElementById('badge').value = p.badge;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      draw();
+    }
+
+    // Wait for fonts, then draw
+    document.fonts.ready.then(() => draw());
+    document.querySelectorAll('input, select, textarea').forEach(el => el.addEventListener('input', draw));
+
+    function draw() {
+      const title = document.getElementById('title').value || 'Zero to One.';
+      const subtitle = document.getElementById('subtitle').value || '';
+      const badge = document.getElementById('badge').value || '';
+
+      ctx.clearRect(0, 0, W, H);
+
+      // ——————————————————————————————
+      // 1. Background — warm white
+      // ——————————————————————————————
+      ctx.fillStyle = '#FEFCF3';
+      ctx.fillRect(0, 0, W, H);
+
+      // ——————————————————————————————
+      // 2. Mountain grid (from hero-section)
+      // ——————————————————————————————
+      drawMountainGrid(ctx, W, H);
+
+      // ——————————————————————————————
+      // 3. Ambient glow — top right
+      // ——————————————————————————————
+      const g1 = ctx.createRadialGradient(W - 60, -80, 0, W - 60, -80, 520);
+      g1.addColorStop(0, 'rgba(245, 158, 11, 0.12)');
+      g1.addColorStop(0.5, 'rgba(251, 191, 36, 0.04)');
+      g1.addColorStop(1, 'rgba(245, 158, 11, 0)');
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, W, H);
+
+      // Ambient glow — bottom left
+      const g2 = ctx.createRadialGradient(0, H + 40, 0, 0, H + 40, 400);
+      g2.addColorStop(0, 'rgba(245, 158, 11, 0.08)');
+      g2.addColorStop(1, 'rgba(245, 158, 11, 0)');
+      ctx.fillStyle = g2;
+      ctx.fillRect(0, 0, W, H);
+
+      // ——————————————————————————————
+      // 4. Top accent line — amber gradient
+      // ——————————————————————————————
+      const topLine = ctx.createLinearGradient(0, 0, W, 0);
+      topLine.addColorStop(0, 'rgba(245, 158, 11, 0)');
+      topLine.addColorStop(0.2, 'rgba(245, 158, 11, 0.7)');
+      topLine.addColorStop(0.8, 'rgba(245, 158, 11, 0.7)');
+      topLine.addColorStop(1, 'rgba(245, 158, 11, 0)');
+      ctx.fillStyle = topLine;
+      ctx.fillRect(0, 0, W, 3);
+
+      // ——————————————————————————————
+      // 5. Z1 Logo — actual SVG paths
+      // ——————————————————————————————
+      const logoScale = 0.048;
+      const logoX = 72;
+      const logoY = 52;
+
+      ctx.save();
+      ctx.translate(logoX, logoY);
+      ctx.scale(logoScale, logoScale);
+
+      // Gradient fill for logo
+      const logoGrad = ctx.createLinearGradient(0, 0, 874, 1021);
+      logoGrad.addColorStop(0, '#FBBF24');
+      logoGrad.addColorStop(1, '#D97706');
+
+      ctx.fillStyle = logoGrad;
+      ctx.fill(new Path2D(Z_PATH));
+      ctx.fill(new Path2D(ONE_PATH));
+      ctx.restore();
+
+      // "Forge" text next to logo
+      const logoRightX = logoX + 874 * logoScale + 14;
+      ctx.font = '800 24px Manrope';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#111827';
+      ctx.fillText('Forge', logoRightX, logoY + (1021 * logoScale) / 2);
+
+      // ——————————————————————————————
+      // 6. Badge — top right pill
+      // ——————————————————————————————
+      if (badge) {
+        const badgeText = badge.toUpperCase();
+        ctx.font = '700 11px Manrope';
+        const badgeW = ctx.measureText(badgeText).width + 32;
+        const bx = W - 72 - badgeW;
+        const by = logoY + 6;
+
+        // Ping dot
+        ctx.beginPath();
+        ctx.arc(bx - 16, by + 14, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#F59E0B';
+        ctx.fill();
+        // Ping outer ring
+        ctx.beginPath();
+        ctx.arc(bx - 16, by + 14, 7, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Pill
+        roundRect(ctx, bx, by, badgeW, 28, 14);
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.08)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.20)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.fillStyle = '#D97706';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = '700 11px Manrope';
+        ctx.letterSpacing = '1px';
+        ctx.fillText(badgeText, bx + badgeW / 2, by + 14);
+        ctx.letterSpacing = '0px';
+      }
+
+      // ——————————————————————————————
+      // 7. Main title — gradient orange (Manrope 800)
+      // ——————————————————————————————
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+
+      const fontSize = title.length > 36 ? 54 : title.length > 24 ? 64 : 76;
+      ctx.font = `800 ${fontSize}px Manrope`;
+
+      const titleLines = getWrappedLines(ctx, title, W - 180);
+      const titleStartY = 230;
+      const lineHeight = fontSize * 1.08;
+
+      // Draw each line with gradient
+      for (let i = 0; i < titleLines.length; i++) {
+        const ly = titleStartY + i * lineHeight;
+        const grad = ctx.createLinearGradient(72, ly - fontSize, 72 + ctx.measureText(titleLines[i]).width, ly);
+        grad.addColorStop(0, '#FBBF24');
+        grad.addColorStop(0.4, '#F59E0B');
+        grad.addColorStop(1, '#D97706');
+        ctx.fillStyle = grad;
+        ctx.fillText(titleLines[i], 72, ly);
+      }
+
+      // ——————————————————————————————
+      // 8. Subtitle — dark gray (DM Sans 500)
+      // ——————————————————————————————
+      if (subtitle) {
+        const subY = titleStartY + (titleLines.length - 1) * lineHeight + 44;
+        ctx.font = "500 21px 'DM Sans'";
+        ctx.fillStyle = '#6B7280';
+        wrapText(ctx, subtitle, 72, subY, W - 200, 30);
+      }
+
+      // ——————————————————————————————
+      // 9. Bottom divider
+      // ——————————————————————————————
+      const dividerY = H - 80;
+      const divGrad = ctx.createLinearGradient(72, 0, W - 72, 0);
+      divGrad.addColorStop(0, 'rgba(229, 231, 235, 0.8)');
+      divGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.2)');
+      divGrad.addColorStop(1, 'rgba(229, 231, 235, 0.8)');
+      ctx.fillStyle = divGrad;
+      ctx.fillRect(72, dividerY, W - 144, 1);
+
+      // ——————————————————————————————
+      // 10. Bottom bar — URL + stats
+      // ——————————————————————————————
+      const bottomY = H - 40;
+
+      // URL
+      ctx.font = "700 15px 'DM Sans'";
+      ctx.fillStyle = '#9CA3AF';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText('z1.sbv.one', 72, bottomY);
+
+      // Stats — right-aligned
+      const statsData = [
+        { val: '12', label: 'WEEKS' },
+        { val: '4H', label: 'FRAMEWORK' },
+        { val: '1', label: 'PRODUCT' },
+      ];
+
+      let sx = W - 72;
+      ctx.textAlign = 'right';
+
+      for (let i = statsData.length - 1; i >= 0; i--) {
+        const s = statsData[i];
+        // Label
+        ctx.font = "600 10px 'DM Sans'";
+        ctx.fillStyle = '#9CA3AF';
+        ctx.letterSpacing = '1px';
+        const labelW = ctx.measureText(s.label).width;
+        ctx.fillText(s.label, sx, bottomY);
+        ctx.letterSpacing = '0px';
+
+        // Value
+        ctx.font = '800 15px Manrope';
+        ctx.fillStyle = '#F59E0B';
+        ctx.fillText(s.val, sx - labelW - 6, bottomY);
+
+        // Calculate next position
+        const valW = ctx.measureText(s.val).width;
+        sx = sx - labelW - 6 - valW - 32;
+
+        // Separator dot
+        if (i > 0) {
+          ctx.beginPath();
+          ctx.arc(sx + 14, bottomY - 4, 2, 0, Math.PI * 2);
+          ctx.fillStyle = '#E5E7EB';
+          ctx.fill();
+        }
+      }
+
+    }
+
+    // ——— Mountain grid — ported 1:1 from MountainGrid.tsx ———
+    function drawMountainGrid(ctx, canvasW, canvasH) {
+      const COLS = 80;
+      const ROWS = 40;
+      const CELL = 12;
+      const GAP = 3;
+      const UNIT = CELL + GAP;
+      const gridW = COLS * UNIT;
+      const gridH = ROWS * UNIT;
+
+      // Scale so grid spans ~110% width, anchored bottom-left (matches CSS)
+      const scale = (canvasW * 1.1) / gridW;
+      const offsetX = 0;
+      const offsetY = canvasH - gridH * scale;
+
+      // Triangle peak helper
+      function triangle(x, left, center, right, height) {
+        if (x <= left || x >= right) return 0;
+        if (x <= center) return height * ((x - left) / (center - left));
+        return height * ((right - x) / (right - center));
+      }
+
+      // Two-peak mountain profile
+      function mountainHeight(col) {
+        const x = col / (COLS - 1);
+        const left = triangle(x, 0.02, 0.24, 0.42, 0.48);
+        const right = triangle(x, 0.22, 0.54, 0.82, 0.78);
+        return Math.max(left, right, 0.0);
+      }
+
+      // Deterministic hash (same as component)
+      function hash(a, b) {
+        let h = (a * 374761393 + b * 668265263 + 1013904223) | 0;
+        h = (((h ^ (h >>> 13)) * 1274126177) | 0) >>> 0;
+        return (h & 0xffff) / 0x10000;
+      }
+
+      ctx.save();
+      ctx.translate(offsetX, offsetY);
+      ctx.scale(scale, scale);
+
+      // Faint square-grid backdrop
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.04)';
+      ctx.lineWidth = 0.5;
+      for (let c = 0; c < COLS; c++) {
+        for (let r = 0; r < ROWS; r++) {
+          roundRect(ctx, c * UNIT, r * UNIT, CELL, CELL, 1.5);
+          ctx.stroke();
+        }
+      }
+
+      // Orange mountain cells
+      for (let c = 0; c < COLS; c++) {
+        const peak = Math.round(mountainHeight(c) * ROWS);
+
+        // Solid mountain body — bottom-up to peak
+        for (let r = 0; r < peak; r++) {
+          const ratio = r / ROWS;
+          const opacity = 0.025 + ratio * 0.085;
+          ctx.fillStyle = `rgba(245, 158, 11, ${opacity})`;
+          roundRect(ctx, c * UNIT, (ROWS - 1 - r) * UNIT, CELL, CELL, 1.5);
+          ctx.fill();
+        }
+
+        // Dissolving scatter above peak
+        for (let s = 0; s < 5; s++) {
+          const r = peak + s;
+          if (r >= ROWS) break;
+          if (hash(c, r) < 0.22 / (s + 1)) {
+            const opacity = 0.015 + hash(c + 50, r) * 0.025;
+            ctx.fillStyle = `rgba(245, 158, 11, ${opacity})`;
+            roundRect(ctx, c * UNIT, (ROWS - 1 - r) * UNIT, CELL, CELL, 1.5);
+            ctx.fill();
+          }
+        }
+      }
+
+      ctx.restore();
+    }
+
+    // ——— Helpers ———
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function getWrappedLines(ctx, text, maxWidth) {
+      const words = text.split(' ');
+      const lines = [];
+      let line = '';
+      for (const word of words) {
+        const test = line ? line + ' ' + word : word;
+        if (ctx.measureText(test).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
+        }
+      }
+      if (line) lines.push(line);
+      return lines;
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+      const lines = getWrappedLines(ctx, text, maxWidth);
+      for (let i = 0; i < lines.length; i++) {
+        ctx.fillText(lines[i], x, y + i * lineHeight);
+      }
+    }
+
+    function savePNG() {
+      const link = document.createElement('a');
+      const preset = document.querySelector('.preset-btn.active');
+      const name = preset ? preset.textContent.toLowerCase().replace(/\s+/g, '-') : 'og';
+      link.download = `og-${name}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>

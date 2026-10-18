@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Z1 Forge — Mentor Recruitment Carousel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #F9FAFB;
+    color: #111827;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+  h1 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .subtitle { text-align: center; color: #6B7280; font-size: 14px; margin-bottom: 32px; }
+  .controls { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+  .controls button {
+    font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px;
+    padding: 10px 20px; border: 2px solid #E5E7EB; border-radius: 10px;
+    background: white; color: #374151; cursor: pointer; transition: all 0.2s;
+  }
+  .controls button:hover { border-color: #F59E0B; color: #D97706; }
+  .controls button.active { background: #F59E0B; border-color: #F59E0B; color: #111827; }
+  .canvas-wrap { display: flex; justify-content: center; margin-bottom: 24px; }
+  canvas { border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); max-width: 540px; width: 100%; height: auto; }
+  .download-bar { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .download-bar button {
+    font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 14px;
+    padding: 12px 28px; border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-download { background: #F59E0B; color: #111827; }
+  .btn-download:hover { background: #D97706; }
+  .btn-all { background: #111827; color: white; }
+  .btn-all:hover { background: #374151; }
+  #status { text-align: center; color: #9CA3AF; font-size: 13px; margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<h1>Z1 Forge — Mentor Carousel</h1>
+<p class="subtitle">Click a slide, then download. Or download all 5 at once.</p>
+
+<div class="controls" id="tabs"></div>
+<div class="canvas-wrap">
+  <canvas id="c" width="1080" height="1080"></canvas>
+</div>
+<div class="download-bar">
+  <button class="btn-download" onclick="downloadCurrent()">Download This Slide</button>
+  <button class="btn-all" onclick="downloadAll()">Download All 5</button>
+</div>
+<p id="status">Loading images and fonts...</p>
+
+<script>
+const SIZE = 1080;
+const PAD = 72;
+
+const slides = [
+  {
+    img: 'mentor/1.jpg',
+    overlay: 0.35,
+    blocks: [
+      { type: 'hero', text: "We're Hiring\nMentors", y: 0.30 },
+      { type: 'sub', text: 'Builders. Operators. Doers.', y: 0.58 },
+      { type: 'body', text: '12-week Zero \u2192 One build program\nhelping founders ship real MVPs.', y: 0.68 },
+      { type: 'footer', text: 'z1.sbv.one', y: 0.92 },
+    ]
+  },
+  {
+    img: 'mentor/2.jpg',
+    overlay: 0.40,
+    blocks: [
+      { type: 'title', text: "We're not looking\nfor talkers.", y: 0.14 },
+      { type: 'accent', text: "We're looking for mentors\nwho have actually built.", y: 0.37 },
+      { type: 'bullets', items: [
+        'Startup building & MVP launches',
+        'Product management & validation',
+        'Growth & user acquisition',
+        'UI/UX & rapid prototyping',
+        'Tech, No-code, AI implementation',
+        'Fundraising & early traction',
+        'Operations & scaling',
+      ], y: 0.56 },
+    ]
+  },
+  {
+    img: 'mentor/3.jpg',
+    overlay: 0.40,
+    blocks: [
+      { type: 'title', text: 'Tactical.\nNot theoretical.', y: 0.14 },
+      { type: 'checklist', items: [
+        'Lead 1 focused workshop session',
+        'Join weekly build check-ins',
+        'Give practical, tactical feedback',
+        'Help founders move idea \u2192 shipped product',
+      ], y: 0.42 },
+      { type: 'accent', text: 'No fluff. No theory-heavy lectures.\nJust execution.', y: 0.78 },
+    ]
+  },
+  {
+    img: 'mentor/4.jpg',
+    overlay: 0.38,
+    blocks: [
+      { type: 'title', text: 'Shape the next\nwave of founders.', y: 0.14 },
+      { type: 'checklist', items: [
+        'Brand visibility in a curated community',
+        'Featured spotlight across our channels',
+        'Demo Day recognition',
+        'Access to high-potential founders',
+        'Equity or collaboration opportunities',
+      ], y: 0.42 },
+    ]
+  },
+  {
+    img: 'mentor/5.jpg',
+    overlay: 0.30,
+    blocks: [
+      { type: 'hero', text: "Let's Build\nTogether.", y: 0.28 },
+      { type: 'body', text: "If you've launched a product, managed\nreal users, and believe in build \u2192 test \u2192 iterate\n\u2014 you might be a fit.", y: 0.56 },
+      { type: 'cta', text: 'APPLY NOW  \u2192', y: 0.78 },
+      { type: 'footer-light', text: 'z1.sbv.one  \u2022  #Z1Forge  \u2022  #ZeroToOne', y: 0.92 },
+    ]
+  },
+];
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const statusEl = document.getElementById('status');
+let current = 0;
+const images = [];
+let logoImg = null;
+let z1MarkImg = null;
+
+// ── Load all images ──────────────────────────────────────────
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Failed to load ' + src));
+    img.src = src;
+  });
+}
+
+async function init() {
+  // Load slide images
+  statusEl.textContent = 'Loading images...';
+  for (let i = 0; i < slides.length; i++) {
+    try {
+      const img = await loadImage(slides[i].img);
+      images[i] = img;
+      statusEl.textContent = `Loaded image ${i + 1}/${slides.length}...`;
+    } catch (e) {
+      console.error(e);
+      images[i] = null;
+      statusEl.textContent = `Warning: ${e.message}`;
+    }
+  }
+
+  // Load logos
+  try {
+    logoImg = await loadImage('forge-logo-dark.png');
+    statusEl.textContent = 'Forge logo loaded...';
+  } catch (e) {
+    console.warn('Forge logo failed to load:', e);
+  }
+  try {
+    z1MarkImg = await loadImage('z1-logo-orange.png');
+    statusEl.textContent = 'Z1 mark loaded...';
+  } catch (e) {
+    console.warn('Z1 mark failed to load:', e);
+  }
+
+  // Wait for fonts
+  statusEl.textContent = 'Loading fonts...';
+  try {
+    await document.fonts.ready;
+    ctx.font = '800 48px Manrope';
+    ctx.fillText('', 0, 0);
+    ctx.font = '700 20px Manrope';
+    ctx.fillText('', 0, 0);
+    ctx.font = '500 20px "DM Sans"';
+    ctx.fillText('', 0, 0);
+    await new Promise(r => setTimeout(r, 200));
+  } catch (e) {
+    console.warn('Font loading issue:', e);
+  }
+
+  statusEl.textContent = 'Ready! Click a slide tab to preview.';
+  render(0);
+}
+
+// ── Z1 Forge Logo (PNG image) ────────────────────────────────
+function drawLogo(x, y, h) {
+  if (!logoImg) return;
+  // Logo is 600x250 — maintain aspect ratio
+  const aspect = logoImg.width / logoImg.height;
+  const w = h * aspect;
+  ctx.drawImage(logoImg, x, y, w, h);
+}
+
+// ── Drawing helpers ──────────────────────────────────────────
+function rrect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function lines(text, x, y, lineH) {
+  text.split('\n').forEach((ln, i) => ctx.fillText(ln, x, y + i * lineH));
+}
+
+// ── Main render ──────────────────────────────────────────────
+function render(idx) {
+  if (idx !== undefined) current = idx;
+  const sl = slides[current];
+
+  ctx.clearRect(0, 0, SIZE, SIZE);
+
+  // 1. Background image
+  const img = images[current];
+  if (img) {
+    ctx.drawImage(img, 0, 0, SIZE, SIZE);
+  } else {
+    ctx.fillStyle = '#F9FAFB';
+    ctx.fillRect(0, 0, SIZE, SIZE);
+  }
+
+  // 2. White gradient overlay (light at top, heavier at bottom for text)
+  const g = ctx.createLinearGradient(0, 0, 0, SIZE);
+  const a = sl.overlay;
+  g.addColorStop(0.0,  `rgba(255,255,255,${(a * 0.3).toFixed(2)})`);
+  g.addColorStop(0.25, `rgba(255,255,255,${(a * 0.55).toFixed(2)})`);
+  g.addColorStop(0.5,  `rgba(255,255,255,${(a * 0.75).toFixed(2)})`);
+  g.addColorStop(0.75, `rgba(255,255,255,${(a * 0.9).toFixed(2)})`);
+  g.addColorStop(1.0,  `rgba(255,255,255,${(a * 1.0).toFixed(2)})`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, SIZE, SIZE);
+
+  // 3. Amber top bar
+  ctx.fillStyle = '#F59E0B';
+  ctx.fillRect(0, 0, SIZE, 6);
+
+  // 4. Left amber accent
+  ctx.fillStyle = '#F59E0B';
+  ctx.fillRect(0, 0, 6, SIZE);
+
+  // 5. Forge logo top-left (larger) with white bg pill
+  const logoH = 64;
+  const logoX = PAD - 6;
+  const logoY = 28;
+  const logoBgW = logoImg ? logoH * (logoImg.width / logoImg.height) + 24 : 180;
+  const logoBgH = logoH + 16;
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  rrect(logoX - 12, logoY - 8, logoBgW, logoBgH, 12); ctx.fill();
+  drawLogo(logoX, logoY, logoH);
+
+  // 6. Content blocks
+  sl.blocks.forEach(b => {
+    const y = b.y * SIZE;
+    drawBlock(b, y);
+  });
+
+  // 7. Z1 mark — large bottom-right, ~half canvas size
+  if (z1MarkImg) {
+    ctx.save();
+    ctx.globalAlpha = 0.25;
+    const markH = SIZE * 0.48;
+    const markW = markH * (z1MarkImg.width / z1MarkImg.height);
+    ctx.drawImage(z1MarkImg, SIZE - markW + 20, SIZE - markH - 10, markW, markH);
+    ctx.restore();
+  }
+
+  // 8. Carousel dots
+  const dotY = SIZE - 36;
+  const gap = 18;
+  const startX = (SIZE - (slides.length * gap - gap + 10)) / 2;
+  slides.forEach((_, i) => {
+    ctx.beginPath();
+    ctx.arc(startX + i * gap, dotY, i === current ? 5 : 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = i === current ? '#F59E0B' : '#D1D5DB';
+    ctx.fill();
+  });
+
+  // Update tab buttons
+  document.querySelectorAll('#tabs button').forEach((btn, i) => {
+    btn.classList.toggle('active', i === current);
+  });
+}
+
+function drawBlock(b, y) {
+  switch (b.type) {
+
+    case 'badge': {
+      ctx.font = '700 14px Manrope, sans-serif';
+      const tw = ctx.measureText(b.text).width;
+      const bx = PAD, bw = tw + 32, bh = 32;
+      // Pill bg
+      ctx.fillStyle = 'rgba(254,243,199,0.9)';
+      rrect(bx, y, bw, bh, 8); ctx.fill();
+      ctx.strokeStyle = '#FDE68A'; ctx.lineWidth = 1.5;
+      rrect(bx, y, bw, bh, 8); ctx.stroke();
+      // Text
+      ctx.fillStyle = '#B45309';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(b.text, bx + 16, y + bh / 2 + 1);
+      break;
+    }
+
+    case 'hero': {
+      ctx.save();
+      ctx.font = '800 76px Manrope, sans-serif';
+      ctx.fillStyle = '#111827';
+      ctx.textBaseline = 'top';
+      // Text shadow for readability
+      ctx.shadowColor = 'rgba(255,255,255,0.6)';
+      ctx.shadowBlur = 12;
+      lines(b.text, PAD, y, 88);
+      ctx.restore();
+      break;
+    }
+
+    case 'title': {
+      ctx.save();
+      ctx.font = '800 50px Manrope, sans-serif';
+      ctx.fillStyle = '#111827';
+      ctx.textBaseline = 'top';
+      ctx.shadowColor = 'rgba(255,255,255,0.5)';
+      ctx.shadowBlur = 8;
+      lines(b.text, PAD, y, 62);
+      ctx.restore();
+      break;
+    }
+
+    case 'accent': {
+      ctx.save();
+      ctx.font = '700 28px Manrope, sans-serif';
+      ctx.fillStyle = '#92400E';
+      ctx.textBaseline = 'top';
+      ctx.shadowColor = 'rgba(255,255,255,0.85)';
+      ctx.shadowBlur = 10;
+      lines(b.text, PAD, y, 40);
+      ctx.restore();
+      break;
+    }
+
+    case 'sub': {
+      ctx.save();
+      ctx.font = '700 30px Manrope, sans-serif';
+      ctx.fillStyle = '#92400E';
+      ctx.textBaseline = 'top';
+      ctx.shadowColor = 'rgba(255,255,255,0.85)';
+      ctx.shadowBlur = 10;
+      ctx.fillText(b.text, PAD, y);
+      ctx.restore();
+      break;
+    }
+
+    case 'body': {
+      ctx.save();
+      ctx.font = '500 23px "DM Sans", sans-serif';
+      ctx.fillStyle = '#1F2937';
+      ctx.textBaseline = 'top';
+      ctx.shadowColor = 'rgba(255,255,255,0.9)';
+      ctx.shadowBlur = 10;
+      lines(b.text, PAD, y, 36);
+      ctx.restore();
+      break;
+    }
+
+    case 'bullets': {
+      ctx.textBaseline = 'top';
+      b.items.forEach((item, i) => {
+        const iy = y + i * 44;
+        // Amber bullet
+        ctx.fillStyle = '#F59E0B';
+        ctx.beginPath();
+        ctx.arc(PAD + 7, iy + 12, 5, 0, Math.PI * 2);
+        ctx.fill();
+        // Text
+        ctx.save();
+        ctx.font = '600 21px "DM Sans", sans-serif';
+        ctx.fillStyle = '#111827';
+        ctx.shadowColor = 'rgba(255,255,255,0.9)';
+        ctx.shadowBlur = 10;
+        ctx.fillText(item, PAD + 26, iy);
+        ctx.restore();
+      });
+      break;
+    }
+
+    case 'checklist': {
+      ctx.textBaseline = 'top';
+      b.items.forEach((item, i) => {
+        const iy = y + i * 56;
+        // Measure text to size card width
+        ctx.font = '500 20px "DM Sans", sans-serif';
+        const tw = ctx.measureText(item).width;
+        const cw = 48 + tw + 24; // check circle space + text + right padding
+        // Card bg
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        rrect(PAD, iy - 4, cw, 48, 10); ctx.fill();
+        ctx.strokeStyle = 'rgba(229,231,235,0.7)';
+        ctx.lineWidth = 1;
+        rrect(PAD, iy - 4, cw, 48, 10); ctx.stroke();
+        // Amber check circle
+        ctx.fillStyle = 'rgba(254,243,199,0.9)';
+        ctx.beginPath();
+        ctx.arc(PAD + 24, iy + 20, 14, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#D97706';
+        ctx.font = '700 16px "DM Sans", sans-serif';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('\u2714', PAD + 17, iy + 21);
+        // Text
+        ctx.font = '500 20px "DM Sans", sans-serif';
+        ctx.fillStyle = '#111827';
+        ctx.textBaseline = 'top';
+        ctx.fillText(item, PAD + 48, iy + 8);
+      });
+      break;
+    }
+
+    case 'cta': {
+      const bw = 300, bh = 60;
+      // Shadow
+      ctx.save();
+      ctx.shadowColor = 'rgba(245,158,11,0.35)';
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetY = 4;
+      ctx.fillStyle = '#F59E0B';
+      rrect(PAD, y, bw, bh, 14); ctx.fill();
+      ctx.restore();
+      // Text
+      ctx.font = '800 21px Manrope, sans-serif';
+      ctx.fillStyle = '#111827';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(b.text, PAD + 36, y + bh / 2 + 1);
+      break;
+    }
+
+    case 'footer': {
+      ctx.font = '600 15px "DM Sans", sans-serif';
+      ctx.fillStyle = '#6B7280';
+      ctx.textBaseline = 'top';
+      ctx.fillText(b.text, PAD, y);
+      break;
+    }
+
+    case 'footer-light': {
+      ctx.save();
+      ctx.font = '600 15px "DM Sans", sans-serif';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.textBaseline = 'top';
+      ctx.shadowColor = 'rgba(0,0,0,0.3)';
+      ctx.shadowBlur = 6;
+      ctx.fillText(b.text, PAD, y);
+      ctx.restore();
+      break;
+    }
+  }
+}
+
+// ── Tab buttons ──────────────────────────────────────────────
+const tabsEl = document.getElementById('tabs');
+['Cover', 'What We Look For', 'What Mentors Do', 'Why Join', 'CTA'].forEach((label, i) => {
+  const btn = document.createElement('button');
+  btn.textContent = `${i + 1}. ${label}`;
+  btn.onclick = () => render(i);
+  tabsEl.appendChild(btn);
+});
+
+// ── Downloads ────────────────────────────────────────────────
+function downloadCurrent() {
+  const a = document.createElement('a');
+  a.download = `z1-mentor-slide-${current + 1}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+async function downloadAll() {
+  for (let i = 0; i < slides.length; i++) {
+    render(i);
+    await new Promise(r => setTimeout(r, 150));
+    const a = document.createElement('a');
+    a.download = `z1-mentor-slide-${i + 1}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    await new Promise(r => setTimeout(r, 400));
+  }
+  statusEl.textContent = 'All 5 slides downloaded!';
+}
+
+// ── Boot ─────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

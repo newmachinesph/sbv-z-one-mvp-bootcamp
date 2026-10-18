@@ -1,0 +1,29 @@
+import "next-auth";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      email: string;
+      name?: string | null;
+      role: "admin" | "member";
+      teamId?: string;
+    };
+  }
+
+  interface User {
+    id: string;
+    email: string;
+    name?: string | null;
+    role: "admin" | "member";
+    teamId?: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: "admin" | "member";
+    teamId?: string;
+  }
+}
